@@ -11,6 +11,9 @@ from sklearn.metrics import make_scorer
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
+from sklearn.metrics import log_loss
+from sklearn.metrics import hinge_loss
+from sklearn.metrics import zero_one_loss
 
 
 
@@ -107,6 +110,7 @@ def q8():
 
 def q9():
   alphas = [0.0001, 0.01, 1, 10, 100]
+  '''
   def softmax(x):
     return np.log(np.sum(np.exp(x)))
   def log_loser(pred, y_test):
@@ -121,15 +125,16 @@ def q9():
       l += 1
     return l/len(pred)
   loss01_scorer = make_scorer(loss01)
+  '''
   for alp in alphas:
     log_clf = LogisticRegression(C=1/alp, n_jobs=-1)
     hinge_clf = LinearSVC(C=1/alp, loss="hinge")
-    log_loss_log_clf = sum(cross_val_score(log_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=log_loss_scorer))/5
-    log_loss_hinge_clf = sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=log_loss_scorer))/5
-    hinge_loss_hinge_clf = sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=hinge_loss_scorer))/5
-    hinge_loss_log_clf = sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=hinge_loss_scorer))/5
-    loss01_hinge_clf = sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=loss01_scorer))/5
-    loss01_log_clf = sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=loss01_scorer))/5
+    print(sum(cross_val_score(log_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(log_loss)))/5)
+    print(sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(log_loss)))/5)
+    print(sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(hinge_loss)))/5)
+    print(sum(cross_val_score(log_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(hinge_loss)))/5)
+    print(sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(zero_one_loss)))/5)
+    print(sum(cross_val_score(log_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(zero_one_loss)))/5)
 
 
 def show(x):
