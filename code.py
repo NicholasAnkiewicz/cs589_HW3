@@ -11,10 +11,6 @@ from sklearn.metrics import make_scorer
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import LinearSVC
 
-from sklearn.metrics import log_loss
-from sklearn.metrics import hinge_loss
-from sklearn.metrics import zero_one_loss
-
 
 
 def q1():
@@ -110,7 +106,7 @@ def q8():
 
 def q9():
   alphas = [0.0001, 0.01, 1, 10, 100]
-  '''
+  
   def softmax(x):
     return np.log(np.sum(np.exp(x)))
   def log_loser(pred, y_test):
@@ -125,7 +121,6 @@ def q9():
       l += 1
     return l/len(pred)
   loss01_scorer = make_scorer(loss01)
-  '''
   for alp in alphas:
     log_clf = LogisticRegression(C=1/alp, n_jobs=-1)
     hinge_clf = LinearSVC(C=1/alp, loss="hinge")
@@ -136,6 +131,36 @@ def q9():
     print(sum(cross_val_score(hinge_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(zero_one_loss)))/5)
     print(sum(cross_val_score(log_clf, X_trn, y_trn, n_jobs = -1, cv=5, scoring=make_scorer(zero_one_loss)))/5)
 
+def prediction_loss(x,y,W,V,b,c):
+  result = W@x
+  result = result + b
+  result = np.tanh(result)
+  result = V@result
+  result = result + c
+  return -y + np.log(np.sum(np.exp(result)))
+
+def prediction_grad(x,y,W,V,b,c):
+  result = W@x
+  result = result + b
+  result = np.tanh(result)
+  result = V@result
+  out = result + c
+  def g(f): 
+    return np.exp(f)/np.sum(np.exp(y))
+  vec = np.vectorize(g)
+  ehat = np.zeros((len(c), 1))
+  ehat[y[0]][0] = 1
+  dL_df =(-ehat[y][0]) + vec(y)
+  dLdc = dL_df
+  h = np.dot(W, x)
+  h = b+h
+  h = np.tanh(h)
+  dLdV = h.T
+  dLdV = np.dot(dL_df, dLdV)
+  dSigmoda = 1 - h**2
+  dLdb = np.multiply(dSigmoda, (V.T@dL_df))
+  dLdW = dLdb@x.T
+  return dLdW, dLdV, dLdb, dLdc
 
 def show(x):
   img = x.reshape((3,31,31)).transpose(1,2,0)
@@ -149,7 +174,16 @@ def main():
   #print(q1())
   #q4()
   #q7()
-  q9()
+  x = np.array([1, 2])
+  y = np.array([1])
+  W = np.array([[0.5, -1],
+               [-0.5, 1],
+               [1, .5]]),
+  V = np.array([[-1, -1, 1],
+               [1, 1, 1]])
+  b = np.array([0, 0, 0])
+  c = [0, 0]
+  #prediction_grad(x, y, W, V, b, c)
   
 if __name__ == "__main__":
   main()
